@@ -1,0 +1,11 @@
+.vscode/**
+out/extension.*
+src/**
+.gitignore
+**/tsconfig.json
+**/tslint.json
+**/*.map
+**/*.ts
+.history
+.DS_Store
+*.vsix

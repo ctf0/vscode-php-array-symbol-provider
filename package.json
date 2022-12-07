@@ -1,0 +1,43 @@
+{
+    "name": "php-array-symbols",
+    "displayName": "Php Array Symbol Provider",
+    "description": "Php Array Symbol Provider",
+    "version": "0.0.1",
+    "publisher": "ctf0",
+    "repository": "https://github.com/ctf0/vscode-php-array-symbol-provider",
+    "engines": {
+        "vscode": "^1.68.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onLanguage:php"
+    ],
+    "main": "./out/main",
+    "contributes": {
+        "languages": [
+            {
+                "id": "php"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run esbuild-base -- --minify",
+        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+        "esbuild": "npm run esbuild-base -- --sourcemap",
+        "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+        "watch": "tsc -watch -p ./"
+    },
+    "devDependencies": {
+        "@types/glob": "^8.0.0",
+        "@types/node": "^18.11.9",
+        "@types/vscode": "^1.68.0",
+        "esbuild": "^0.15.15",
+        "glob": "^8.0.3",
+        "typescript": "^4.9.3"
+    },
+    "dependencies": {
+        "php-parser": "^3.1.2"
+    }
+}
