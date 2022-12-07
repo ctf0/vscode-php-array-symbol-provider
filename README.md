@@ -1,0 +1,1 @@
+# vscode-php-array-symbol-provider
