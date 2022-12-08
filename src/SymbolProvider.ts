@@ -9,8 +9,12 @@ export default class SymbolProvider implements vscode.DocumentSymbolProvider {
         if (document) {
             const DOCUMENT_ARRAY_ITEMS: any = utils.getDocumentArrayItems(document.getText())
 
-            if (DOCUMENT_ARRAY_ITEMS.length) {
-                result.push(...getSymbolsList(document, DOCUMENT_ARRAY_ITEMS))
+            try {
+                if (DOCUMENT_ARRAY_ITEMS.length) {
+                    result.push(...getSymbolsList(document, DOCUMENT_ARRAY_ITEMS))
+                }
+            } catch (error) {
+                // console.error(error);
             }
         }
 

@@ -2,7 +2,7 @@
     "name": "php-array-symbols",
     "displayName": "Php Array Symbol Provider",
     "description": "Php Array Symbol Provider",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/vscode-php-array-symbol-provider",
     "engines": {
@@ -12,7 +12,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onLanguage:php"
+        "onLanguage:php",
+        "onStartupFinished"
     ],
     "main": "./out/main",
     "contributes": {
