@@ -9,12 +9,8 @@ export default class SymbolProvider implements vscode.DocumentSymbolProvider {
         if (document) {
             const DOCUMENT_ARRAY_ITEMS: any = utils.getDocumentArrayItems(document.getText())
 
-            try {
-                if (DOCUMENT_ARRAY_ITEMS.length) {
-                    result.push(...getSymbolsList(document, DOCUMENT_ARRAY_ITEMS))
-                }
-            } catch (error) {
-                // console.error(error);
+            if (DOCUMENT_ARRAY_ITEMS && DOCUMENT_ARRAY_ITEMS.length) {
+                result.push(...getSymbolsList(document, DOCUMENT_ARRAY_ITEMS))
             }
         }
 
@@ -22,51 +18,126 @@ export default class SymbolProvider implements vscode.DocumentSymbolProvider {
     }
 }
 
-function getSymbolsList(document: vscode.TextDocument, nodeList: Array<any>): vscode.DocumentSymbol[] {
+function getSymbolsList(document: vscode.TextDocument, nodeList: Array<any>, childrenLength: number = 0): vscode.DocumentSymbol[] {
     const result: vscode.DocumentSymbol[] = []
+    let _length = 0
 
     for (const node of nodeList) {
-        // because indexed arrays only have values
-        const { value = '/', loc, kind } = node.key || node.value
-        const selectionRange = utils.locationToRange(loc, value)
-        let type: number = 0
+        try {
+            let provider = new vscode.DocumentSymbol(
+                getValue(node, _length),
+                node.value.kind,
+                getType(node),
+                getNodeKeyRange(node, document),
+                getNodeKeyRange(node.key || node.value, document)
+            )
 
-        switch (node.value.kind) {
-            case 'array':
-                type = vscode.SymbolKind.Array
-                break;
-            case 'string':
-                type = vscode.SymbolKind.String
-                break;
-            case 'number':
-                type = vscode.SymbolKind.Number
-                break;
-            case 'bool':
-                type = vscode.SymbolKind.Boolean
-                break;
-            default:
-                type = vscode.SymbolKind.Key
-                break;
+            if (node.value.items?.length) {
+                provider.children = getSymbolsList(document, node.value.items, node.value.items.length - 1)
+            }
+
+            if (_length < childrenLength) {
+                _length++
+            }
+
+            result.push(provider)
+        } catch (error) {
+            // console.log(node);
+            // console.error(error);
         }
-
-        if (value === '/') {
-            type = vscode.SymbolKind.Null
-        }
-
-        let provider = new vscode.DocumentSymbol(
-            value,
-            kind,
-            type,
-            document.lineAt(loc.start.line - 1).range,
-            selectionRange
-        )
-
-        if (type === vscode.SymbolKind.Array) {
-            provider.children = getSymbolsList(document, node.value.items)
-        }
-
-        result.push(provider)
     }
 
     return result
+}
+
+function getValue(node: any, childrenLength: number) {
+    let _key = node.key
+    let _val = node.value
+
+    if (_key) {
+        if (_key.value) {
+            return _key.value
+        }
+
+        if (_key.what) {
+            return getNestedKeyValue(_key.what)
+        }
+
+        if (_key.left) {
+            return getNestedKeyValue(_key.left.what)
+        }
+    }
+
+    if (_val) {
+        if (_val.value) {
+            return _val.value
+        }
+
+        if (_val.what) {
+            return getNestedKeyValue(_val.what)
+        }
+
+        if (_val.left) {
+            return getNestedKeyValue(_val.left.what)
+        }
+    }
+
+    if (childrenLength) {
+        return `${childrenLength}`
+    }
+
+    return '0'
+}
+
+function getNestedKeyValue(_key: any) {
+    if (_key.what) {
+        return getNestedKeyValue(_key.what)
+    }
+
+    return _key.name
+}
+
+function getNodeKeyRange(node: any, document: vscode.TextDocument) {
+    let location = node.loc
+
+    return document.lineAt(location.start.line - 1)
+        .range
+        .union(document.lineAt(location.end.line - 1).range)
+}
+
+function getType(node: any) {
+    let type: number = 0
+
+    switch (node.value.kind) {
+        case 'array':
+            type = vscode.SymbolKind.Array
+            break;
+        case 'string':
+            type = vscode.SymbolKind.String
+            break;
+        case 'number':
+            type = vscode.SymbolKind.Number
+            break;
+        case 'boolean':
+            type = vscode.SymbolKind.Boolean
+            break;
+        case 'staticlookup':
+        case 'name':
+            type = vscode.SymbolKind.Class
+            break;
+        case 'nullkeyword':
+            type = vscode.SymbolKind.Null
+            break;
+        case 'call':
+            type = vscode.SymbolKind.Function
+            break;
+        case 'bin':
+            type = vscode.SymbolKind.Package
+            break;
+        default:
+            type = vscode.SymbolKind.Key
+            break;
+    }
+
+    return type
 }
