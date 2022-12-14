@@ -1,11 +1,6 @@
 import * as PhpParser from 'php-parser';
 
 const parser = new PhpParser.Engine({
-    parser: {
-        locations: true,
-        extractDoc: false,
-        php7: true
-    },
     ast: {
         withPositions: true
     }
