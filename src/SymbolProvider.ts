@@ -4,140 +4,142 @@ import * as utils from './utils';
 export default class SymbolProvider implements vscode.DocumentSymbolProvider {
 
     public provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
-        const result: vscode.DocumentSymbol[] = []
+        const result: vscode.DocumentSymbol[] = [];
 
         if (document) {
-            const DOCUMENT_ARRAY_ITEMS: any = utils.getDocumentArrayItems(document.getText())
+            const data = utils.getDocumentArrayItems(document.getText());
 
-            if (DOCUMENT_ARRAY_ITEMS && DOCUMENT_ARRAY_ITEMS.length) {
-                result.push(...getSymbolsList(document, DOCUMENT_ARRAY_ITEMS))
+            if (data) {
+                for (const item of data) {
+                    result.push(...getSymbolsList(document, item.expr.items));
+                }
             }
         }
 
-        return result
+        return result;
     }
 }
 
-function getSymbolsList(document: vscode.TextDocument, nodeList: Array<any>, childrenLength: number = 0): vscode.DocumentSymbol[] {
-    const result: vscode.DocumentSymbol[] = []
-    let _length = 0
+function getSymbolsList(document: vscode.TextDocument, nodeList: Array<any>, childrenLength = 0): vscode.DocumentSymbol[] {
+    const result: vscode.DocumentSymbol[] = [];
+    let _length = 0;
 
     for (const node of nodeList) {
         try {
-            let provider = new vscode.DocumentSymbol(
+            const provider = new vscode.DocumentSymbol(
                 getValue(node, _length),
                 node.value.kind,
                 getType(node),
                 getNodeKeyRange(node, document),
-                getNodeKeyRange(node.key || node.value, document)
-            )
+                getNodeKeyRange(node.key || node.value, document),
+            );
 
             if (node.value.items?.length) {
-                provider.children = getSymbolsList(document, node.value.items, node.value.items.length - 1)
+                provider.children = getSymbolsList(document, node.value.items, node.value.items.length - 1);
             }
 
             if (_length < childrenLength) {
-                _length++
+                _length++;
             }
 
-            result.push(provider)
+            result.push(provider);
         } catch (error) {
             // console.log(node);
             // console.error(error);
         }
     }
 
-    return result
+    return result;
 }
 
 function getValue(node: any, childrenLength: number) {
-    let _key = node.key
-    let _val = node.value
+    const _key = node.key;
+    const _val = node.value;
 
     if (_key) {
         if (_key.value) {
-            return _key.value
+            return _key.value;
         }
 
         if (_key.what) {
-            return getNestedKeyValue(_key.what)
+            return getNestedKeyValue(_key.what);
         }
 
         if (_key.left) {
-            return getNestedKeyValue(_key.left.what)
+            return getNestedKeyValue(_key.left.what);
         }
     }
 
     if (_val) {
         if (_val.value) {
-            return _val.value
+            return _val.value;
         }
 
         if (_val.what) {
-            return getNestedKeyValue(_val.what)
+            return getNestedKeyValue(_val.what);
         }
 
         if (_val.left) {
-            return getNestedKeyValue(_val.left.what)
+            return getNestedKeyValue(_val.left.what);
         }
     }
 
     if (childrenLength) {
-        return `${childrenLength}`
+        return `${childrenLength}`;
     }
 
-    return '0'
+    return '0';
 }
 
 function getNestedKeyValue(_key: any) {
     if (_key.what) {
-        return getNestedKeyValue(_key.what)
+        return getNestedKeyValue(_key.what);
     }
 
-    return _key.name
+    return _key.name;
 }
 
 function getNodeKeyRange(node: any, document: vscode.TextDocument) {
-    let location = node.loc
+    const location = node.loc;
 
     return document.lineAt(location.start.line - 1)
         .range
-        .union(document.lineAt(location.end.line - 1).range)
+        .union(document.lineAt(location.end.line - 1).range);
 }
 
 function getType(node: any) {
-    let type: number = 0
+    let type = 0;
 
     switch (node.value.kind) {
         case 'array':
-            type = vscode.SymbolKind.Array
+            type = vscode.SymbolKind.Array;
             break;
         case 'string':
-            type = vscode.SymbolKind.String
+            type = vscode.SymbolKind.String;
             break;
         case 'number':
-            type = vscode.SymbolKind.Number
+            type = vscode.SymbolKind.Number;
             break;
         case 'boolean':
-            type = vscode.SymbolKind.Boolean
+            type = vscode.SymbolKind.Boolean;
             break;
         case 'staticlookup':
         case 'name':
-            type = vscode.SymbolKind.Class
+            type = vscode.SymbolKind.Class;
             break;
         case 'nullkeyword':
-            type = vscode.SymbolKind.Null
+            type = vscode.SymbolKind.Null;
             break;
         case 'call':
-            type = vscode.SymbolKind.Function
+            type = vscode.SymbolKind.Function;
             break;
         case 'bin':
-            type = vscode.SymbolKind.Package
+            type = vscode.SymbolKind.Package;
             break;
         default:
-            type = vscode.SymbolKind.Key
+            type = vscode.SymbolKind.Key;
             break;
     }
 
-    return type
+    return type;
 }
