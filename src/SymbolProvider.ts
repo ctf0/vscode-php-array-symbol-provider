@@ -11,7 +11,7 @@ export default class SymbolProvider implements vscode.DocumentSymbolProvider {
 
             if (data) {
                 for (const item of data) {
-                    result.push(...getSymbolsList(document, item.expr.items));
+                    result.push(...getSymbolsList(document, [item]));
                 }
             }
         }
@@ -23,6 +23,10 @@ export default class SymbolProvider implements vscode.DocumentSymbolProvider {
 function getSymbolsList(document: vscode.TextDocument, nodeList: Array<any>, childrenLength = 0): vscode.DocumentSymbol[] {
     const result: vscode.DocumentSymbol[] = [];
     let _length = 0;
+
+    if (!nodeList) {
+        return result;
+    }
 
     for (const node of nodeList) {
         try {
