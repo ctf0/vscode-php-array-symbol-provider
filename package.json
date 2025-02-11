@@ -2,12 +2,12 @@
     "name": "php-array-symbols",
     "displayName": "Php Array Symbol Provider",
     "description": "Php Array Symbol Provider",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/vscode-php-array-symbol-provider",
     "icon": "images/icon.png",
     "engines": {
-        "vscode": "^1.68.0"
+        "vscode": "^1.85.0"
     },
     "categories": [
         "Other"
@@ -32,12 +32,12 @@
         "watch": "npm run esbuild"
     },
     "devDependencies": {
-        "@types/node": "^18.15.11",
-        "@types/vscode": "^1.68.0",
-        "esbuild": "^0.17.16",
-        "typescript": "^5.0.4"
+        "@types/node": "^22.13.1",
+        "@types/vscode": "^1.85.0",
+        "esbuild": "^0.25.0",
+        "typescript": "^5.7.3"
     },
     "dependencies": {
-        "php-parser": "^3.1.4"
+        "php-parser": "^3.2.2"
     }
 }
