@@ -2,7 +2,7 @@
     "name": "php-array-symbols",
     "displayName": "Php Array Symbol Provider",
     "description": "Php Array Symbol Provider",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/vscode-php-array-symbol-provider",
     "icon": "images/icon.png",
@@ -26,7 +26,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run esbuild-base -- --pure:console.log --minify",
-        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --external:php-parser --format=cjs --platform=node",
         "esbuild": "npm run esbuild-base -- --sourcemap",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "watch": "npm run esbuild"
